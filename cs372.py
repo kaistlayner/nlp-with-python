@@ -168,6 +168,104 @@ def extract4():
     f.close()
     print(data2)
 
+def extract6():
+    def txt2json_Theking(filename):
+        name_buf = ""
+        say_buf = ""
+        say_state = False
+        expr = ":::"
+        
+        res_dict={}
+        with open(filename, 'r', encoding='utf-8') as f:
+            
+            for line in f.readlines():
+                print(line)
+                if expr in line:
+                    name_buf, say_buf = line.split(expr)[0],line.split(expr)[1]
+                    name_buf = name_buf.split(". ")[-1]
+                    say_buf = say_buf.strip('\n')
+                    say_state=True
+                    print(f'nb: {name_buf}  sb: {say_buf}')
+                elif line.strip()!="" and say_state==True:
+                    say_buf += line.strip('\n')
+                elif line.strip()=="" and say_state==True:
+                    say_state=False
+                
+                if not say_state and say_buf!="" and name_buf!="":
+                    if name_buf in res_dict:
+                        res_dict[name_buf].append(say_buf)
+                    else:
+                        res_dict[name_buf] = [say_buf]
+                    say_buf=""
+                    name_buf=""
+        return res_dict
+
+    data = txt2json_Theking("./영화대본모음/modified-더킹.txt")
+    print(data)
+
+def line_count(line, expr):
+    res = 0
+    print(line,expr)
+    while expr in line:
+        print("werwerw")
+        res += 1
+        line = line.replace(expr,'',1)
+        if res > 100:
+            return -1
+    print(res)
+    return res
+
+def get_expr(line, expr, state):
+    if not state and line_count(line,expr) == 2:
+        return line[line.index(expr)+len(expr) : -(line[::-1].index(expr)+len(expr))]
+    elif not state and line_count(line,expr) == 1:
+        return line[line.index(expr)+len(expr) :]
+    else:
+        return line[: line.index(expr)+len(expr)]
+
+def txt2json_SinsegaeAndBudang(filename):
+    name_buf = ""
+    say_buf = ""
+    name_state = False
+    say_state = False
+    name_expr = ":::"
+    say_expr = "&&&"
+    res_dict={}
+    with open(filename, 'r', encoding='utf-8') as f:
+        
+        for line in f.readlines():
+            print(line)
+            if not name_state and line_count(line, name_expr) >=2:
+                name_buf += get_expr(line, name_expr, name_state)
+                name_state = True
+            elif name_state and line_count(line, say_expr) >=2:
+                say_buf += get_expr(line, say_expr, say_state)
+                name_state = False
+            elif name_state and not say_state and line_count(line, say_expr) ==1:
+                say_buf += get_expr(line, say_expr, say_state)
+                say_state = True
+            elif name_state and say_state and line_count(line, say_expr) ==1:
+                say_buf += get_expr(line, say_expr, say_state)
+                say_state = False
+                name_state = False
+            if not (name_state or say_state) and say_buf != "" and name_buf !="":
+                if name_buf in res_dict:
+                    res_dict[name_buf].append(say_buf)
+                else:
+                    res_dict[name_buf] = [say_buf]
+                say_buf=""
+                name_buf=""
+    return res_dict
+
+
+def extract7():
+    data = txt2json_SinsegaeAndBudang("./영화대본모음/modified-신세계.txt")
+    print(data)
+
+def extract8():
+    data = txt2json_SinsegaeAndBudang("./영화대본모음/modified-부당거래.txt")
+    print(data)
+
 def extract9():
     f = open("./영화대본모음/악마를보았다.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
