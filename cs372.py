@@ -72,7 +72,14 @@ def extract10():
             script = script.strip()
             data[key].append(script)
 
-    print(data['고니'])
+    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
+
     f.close()
 
 def extract11():
