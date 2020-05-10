@@ -133,6 +133,7 @@ def extract03():
                     name_buf=""
         return res_dict
     data=txt2json_Busan("./영화대본모음/부산행03.txt")
+    print(data)
     return data
 
 
@@ -479,17 +480,68 @@ def extract_call(index):
     func = switcher.get(index, lambda index: invalid(index))
     return func()
 
+
+
+#######################################
+def feature1(data):   # 말 끝을 흐리는지
+    dic = defaultdict(int)
+    for person in data:
+        num = 0
+        for script in data[person]:
+            if script[-1] == '.' and script[-2] == '.':
+                num = num + 1
+        dic[person] = num
+    return dic
+
+def feature2(data):   # 문장 길이
+    dic = defaultdict(None)
+    for person in data:
+        l = 0
+        num = 0
+        for script in data[person]:
+            l = l + len(script)
+            num = num + 1
+        dic[person] = l/num
+    return dic
+
+def feature3(data):
+    all_words = []
+    for person in data:
+        for script in data[person]:
+            for word in script.split(' '):
+                all_words.append(word)
+    Frq = FreqDist(all_words)
+
+    dic = defaultdict(int)
+    for person in data:
+        count = 0
+        s = 0
+        for script in data[person]:
+            for word in script.split(' '):
+                count = count + 1
+                s = s + Frq[word]
+        dic[person] = s
+
+    return dic
+
 def main():
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-    database = []
-    files = []
-    path = './영화대본모음'
-    for i in os.listdir(path):
-        if i.endswith('.txt'):
-            files.append(i)
+    # database = []
+    # files = []
+    # path = './영화대본모음'
+    # for i in os.listdir(path):
+    #     if i.endswith('.txt'):
+    #         files.append(i)
+    #
+    # for file in files:
+    #     database.append(extract_call(file[-6:-4]))
+    # # extract03()
+    # print(database)
+    practice = '......... 넌 내 식구야. 또 볼건데. 잘 갔다 와.'
+    print(re.sub('+.', '.', practice))
+    # result = practice.replace(r'[+.]', practice)
 
-    for file in files:
-        extract_call(file[-6:-4])
+    # print(result)
 
 
 if __name__ == '__main__':
