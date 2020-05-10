@@ -614,10 +614,15 @@ def main():
             lst.append(dic[person])
         all_lst.append(lst)
     print(all_lst)
-    # # return database
+    # return database
     # des = extract_des(database)
-    # centroids = get_cluster(des, 3, 1e-1)
-    # labels = get_labels(des, centoids)
+    des = np.array(all_lst)
+    centroids = get_cluster(des, 3, 1e-1)
+    labels = get_labels(des, centroids)
+
+    print(f'centroids: {centroids}')
+    print(f'labels: {labels}')
+
 
 
 if __name__ == '__main__':

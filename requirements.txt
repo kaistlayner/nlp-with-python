@@ -1,3 +1,6 @@
 konlpy
 beautifulsoup4
-
+nltk
+matplotlib
+scipy
+scv
