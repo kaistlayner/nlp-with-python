@@ -106,8 +106,9 @@ def extract2():
     f.close()
 
 def remv_motion(line):
-    if ')' in line:
-        return line[line.index(')')+1:]
+    if '(' in line and ')' in line:
+        return remv_motion(line[:line.index('(')]+line[line.index(')')+1:])
+    
     return line
 
 def extract3():
@@ -115,7 +116,7 @@ def extract3():
         name_buf = ""
         say_buf = ""
         expr = ":::"
-        res_dict={}
+        res_dict=defaultdict(list)
 
         with open(filename, 'r', encoding='utf-8') as f:
             
@@ -123,10 +124,8 @@ def extract3():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
                     say_buf = remv_motion(say_buf.strip('\n'))
-                    if name_buf in res_dict:
-                        res_dict[name_buf].append(say_buf)
-                    else:
-                        res_dict[name_buf] = [say_buf]
+                    res_dict[name_buf].append(say_buf)
+                    
                     say_buf=""
                     name_buf=""
 
