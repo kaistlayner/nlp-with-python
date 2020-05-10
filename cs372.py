@@ -260,13 +260,15 @@ def line_count(line, expr):
     return res
 
 def get_expr(line, expr, state):
-    if not state and line_count(line,expr) == 2:
+    if line_count(line,expr) == 2:
         return line[line.index(expr)+len(expr) : -(line[::-1].index(expr)+len(expr))]
     elif not state and line_count(line,expr) == 1:
         return line[line.index(expr)+len(expr) :]
-    else:
+    elif line_count(line,expr) == 1:
         return line[: line.index(expr)+len(expr)]
-
+    else:
+        return ""
+        
 def txt2json_SinsegaeAndBudang(filename):
     name_buf = ""
     say_buf = ""
@@ -276,26 +278,25 @@ def txt2json_SinsegaeAndBudang(filename):
     say_expr = "&&&"
     res_dict=defaultdict(list)
     with open(filename, 'r', encoding='utf-8') as f:
-
+        
         for line in f.readlines():
             if not name_state and line_count(line, name_expr) >=2:
                 name_buf += get_expr(line, name_expr, name_state)
                 name_state = True
             elif name_state and line_count(line, say_expr) >=2:
                 say_buf += remv_motion(get_expr(line, say_expr, say_state))
-                name_state = False
+                say_state = True
             elif name_state and not say_state and line_count(line, say_expr) ==1:
                 say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 say_state = True
             elif name_state and say_state and line_count(line, say_expr) ==1:
                 say_buf += remv_motion(get_expr(line, say_expr, say_state))
+            elif name_state and say_state and line_count(line, say_expr) ==0:
                 say_state = False
                 name_state = False
+
             if not (name_state or say_state) and say_buf != "" and name_buf !="":
-                if name_buf in res_dict:
-                    res_dict[name_buf].append(say_buf)
-                else:
-                    res_dict[name_buf] = [say_buf]
+                res_dict[name_buf].append(say_buf)
                 say_buf=""
                 name_buf=""
     return(res_dict)
