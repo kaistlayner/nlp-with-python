@@ -3,10 +3,11 @@ import urllib
 from bs4 import BeautifulSoup
 from collections import defaultdict
 import re
+import os
 
 
-def extract1():
-    f = open("./영화대본모음/건축학개론.txt", 'rt', encoding='UTF8')
+def extract01():
+    f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -27,7 +28,7 @@ def extract1():
                 if script == '':
                     continue
                 else:
-                    data[key].append(script)
+                    data['건축학개론 ' + key].append(script)
 
             else:
                 # 대본이 한줄 뛰고 이어지는 경우들 처리
@@ -37,9 +38,9 @@ def extract1():
                 if script == '':
                     continue
                 else:
-                    data[key].append(script)
+                    data['건축학개론 ' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -48,10 +49,10 @@ def extract1():
         del data[character]
 
     f.close()
-    print(data)
+    return data
 
-def extract2():
-    f = open("./영화대본모음/끝까지간다.txt", 'rt', encoding='UTF8')
+def extract02():
+    f = open("./영화대본모음/끝까지간다02.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -80,7 +81,7 @@ def extract2():
                     continue
                 else:
                     key = character
-                    data[key].append(script)
+                    data['끝까지간다 ' + key].append(script)
 
             else:
                 # 대본이 한줄 뛰고 이어지는 경우들 처리
@@ -92,9 +93,9 @@ def extract2():
                 if script == '':
                     continue
                 else:
-                    data[key].append(script)
+                    data['끝까지간다' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -102,11 +103,11 @@ def extract2():
     for character in useless:
         del data[character]
 
-    print(data)
+    return data
     f.close()
 
 
-def extract3():
+def extract03():
     def txt2json_Busan(filename):
         name_buf = ""
         say_buf = ""
@@ -114,7 +115,7 @@ def extract3():
         res_dict={}
 
         with open(filename, 'r', encoding='utf-8') as f:
-            
+
             for line in f.readlines():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
@@ -126,11 +127,11 @@ def extract3():
                     say_buf=""
                     name_buf=""
         return res_dict
-    data=txt2json_Busan("./영화대본모음/modified-부산행.txt")
-    print(data)
+    data=txt2json_Busan("./영화대본모음/부산행03.txt")
+    return data
 
-def extract4():
-    f = open("./영화대본모음/써니.txt", 'rt', encoding='UTF8')
+def extract04():
+    f = open("./영화대본모음/써니04.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     key = None
     key_check = False
@@ -157,7 +158,7 @@ def extract4():
                 if script == '':
                     continue
                 else:
-                    data[key].append(script)
+                    data['써니 ' + key].append(script)
 
             elif key_check == True:
                 # 대본이 한줄 뛰고 이어지는 경우들 처리
@@ -167,11 +168,11 @@ def extract4():
                 if script == '':
                     continue
                 else:
-                    data[key].append(script)
+                    data['써니 ' + key].append(script)
         else :
             key_check = False
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -190,18 +191,18 @@ def extract4():
             else:
                 data2[key].append(script)
     f.close()
-    print(data2)
+    return data2
 
-def extract6():
+def extract05():
     def txt2json_Theking(filename):
         name_buf = ""
         say_buf = ""
         say_state = False
         expr = ":::"
-        
+
         res_dict={}
         with open(filename, 'r', encoding='utf-8') as f:
-            
+
             for line in f.readlines():
                 if expr in line:
                     name_buf, say_buf = line.split(expr)[0],line.split(expr)[1]
@@ -212,7 +213,7 @@ def extract6():
                     say_buf += line.strip('\n')
                 elif line.strip()=="" and say_state==True:
                     say_state=False
-                
+
                 if not say_state and say_buf!="" and name_buf!="":
                     if name_buf in res_dict:
                         res_dict[name_buf].append(say_buf)
@@ -222,8 +223,8 @@ def extract6():
                     name_buf=""
         return res_dict
 
-    data = txt2json_Theking("./영화대본모음/modified-더킹.txt")
-    print(data)
+    data = txt2json_Theking("./영화대본모음/더킹05.txt")
+    return data
 
 def line_count(line, expr):
     res = 0
@@ -251,7 +252,7 @@ def txt2json_SinsegaeAndBudang(filename):
     say_expr = "&&&"
     res_dict={}
     with open(filename, 'r', encoding='utf-8') as f:
-        
+
         for line in f.readlines():
             if not name_state and line_count(line, name_expr) >=2:
                 name_buf += get_expr(line, name_expr, name_state)
@@ -276,16 +277,16 @@ def txt2json_SinsegaeAndBudang(filename):
     return res_dict
 
 
-def extract7():
-    data = txt2json_SinsegaeAndBudang("./영화대본모음/modified-신세계.txt")
-    print(data)
+def extract06():
+    data = txt2json_SinsegaeAndBudang("./영화대본모음/신세계06.txt")
+    return data
 
-def extract8():
-    data = txt2json_SinsegaeAndBudang("./영화대본모음/modified-부당거래.txt")
-    print(data)
+def extract07():
+    data = txt2json_SinsegaeAndBudang("./영화대본모음/부당거래07.txt")
+    return data
 
-def extract9():
-    f = open("./영화대본모음/악마를보았다.txt", 'rt', encoding='UTF8')
+def extract08():
+    f = open("./영화대본모음/악마를보았다08.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -313,7 +314,7 @@ def extract9():
                 continue
             else:
                 key = character
-                data[key].append(script)
+                data['악마를보았다 ' + key].append(script)
 
         # 대본이 한줄 뛰고 이어지는 경우들 처리
         elif re.match(r'[\t]', line):
@@ -324,9 +325,9 @@ def extract9():
             if script == '':
                 continue
             else:
-                data[key].append(script)
+                data['악마를보았다 ' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -334,11 +335,11 @@ def extract9():
     for character in useless:
         del data[character]
 
-    print(data)
+    return data
     f.close()
 
-def extract10():
-    f = open("./영화대본모음/타짜.txt", 'rt', encoding='UTF8')
+def extract09():
+    f = open("./영화대본모음/타짜09.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -359,7 +360,7 @@ def extract10():
                 continue
             else:
                 key = character
-                data[key].append(script)
+                data['타짜 ' + key].append(script)
 
         # 대본이 한줄 뛰고 이어지는 경우들 처리
         elif re.match(r'[\t]', line):
@@ -370,9 +371,9 @@ def extract10():
             if script == '':
                 continue
             else:
-                data[key].append(script)
+                data['타짜 ' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -380,12 +381,12 @@ def extract10():
     for character in useless:
         del data[character]
 
-    print(data)
+    return data
     f.close()
 
 # 등장인물 : ... 이런것들 현재 삽입되어있음
-def extract11():
-    f = open("./영화대본모음/파수꾼.txt", 'rt', encoding='UTF8')
+def extract10():
+    f = open("./영화대본모음/파수꾼10.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -406,9 +407,9 @@ def extract11():
                 continue
             else:
                 key = character
-                data[key].append(script)
+                data['파수꾼 ' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -416,11 +417,11 @@ def extract11():
     for character in useless:
         del data[character]
 
-    print(data)
+    return data
     f.close()
 
-def extract12():
-    f = open("./영화대본모음/신의한수.txt", 'rt', encoding='UTF8')
+def extract11():
+    f = open("./영화대본모음/신의한수11.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
     while True:
         line = f.readline()
@@ -442,7 +443,7 @@ def extract12():
                     continue
                 else:
                     script = script.replace('\t', '')
-                    data[key].append(script)
+                    data['신의한수 ' + key].append(script)
 
             else:
                 # 대본이 한줄 뛰고 이어지는 경우들 처리
@@ -453,9 +454,9 @@ def extract12():
                     continue
                 else:
                     script = script.replace('\t', '')
-                    data[key].append(script)
+                    data['신의한수 ' + key].append(script)
 
-    # 대본이 10개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
+    # 대본이 20개 이하인 중요하지 않은 인물들 dictionary key 에서 제외
     useless = []
     for key in data:
         if len(data[key]) < 20:
@@ -464,11 +465,26 @@ def extract12():
         del data[character]
 
     f.close()
-    print(data)
+    return data
+
+def extract_call(index):
+    switcher = {'01' : extract01, '02' : extract02, '03' : extract03, '04' : extract04, '05' : extract05, '06' : extract06, '07' : extract07, '08' : extract08, '09' : extract09, '10' : extract10, '11' : extract11}
+    func = switcher.get(index, lambda index: invalid(index))
+    return func()
 
 def main():
-    # 영화대본모음 폴더에 들어가서 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-    extract11()
+    # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
+    # database = []
+    # files = []
+    # path = './영화대본모음'
+    # for i in os.listdir(path):
+    #     if i.endswith('.txt'):
+    #         files.append(i)
+    #
+    # for file in files:
+    #     extract_call(file[-6:-4])
+    extract03()
+
 
 if __name__ == '__main__':
     main()
