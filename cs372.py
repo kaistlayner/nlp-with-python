@@ -108,8 +108,9 @@ def extract02():
 
 
 def remv_motion(line):
-    if ')' in line:
-        return line[line.index(')')+1:]
+    if '(' in line and ')' in line:
+        return remv_motion(line[:line.index('(')]+line[line.index(')')+1:])
+    
     return line
 
 def extract03():
@@ -117,7 +118,7 @@ def extract03():
         name_buf = ""
         say_buf = ""
         expr = ":::"
-        res_dict={}
+        res_dict=defaultdict(list)
 
         with open(filename, 'r', encoding='utf-8') as f:
 
@@ -125,10 +126,8 @@ def extract03():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
                     say_buf = remv_motion(say_buf.strip('\n'))
-                    if name_buf in res_dict:
-                        res_dict[name_buf].append(say_buf)
-                    else:
-                        res_dict[name_buf] = [say_buf]
+                    res_dict[name_buf].append(say_buf)
+                    
                     say_buf=""
                     name_buf=""
         return res_dict
@@ -207,7 +206,7 @@ def extract05():
         say_state = False
         expr = ":::"
 
-        res_dict={}
+        res_dict=defaultdict(list)
         with open(filename, 'r', encoding='utf-8') as f:
 
             for line in f.readlines():
@@ -258,7 +257,7 @@ def txt2json_SinsegaeAndBudang(filename):
     say_state = False
     name_expr = ":::"
     say_expr = "&&&"
-    res_dict={}
+    res_dict=defaultdict(list)
     with open(filename, 'r', encoding='utf-8') as f:
 
         for line in f.readlines():
