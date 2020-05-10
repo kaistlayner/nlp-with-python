@@ -128,7 +128,7 @@ def extract3():
         return res_dict
     data=txt2json_Busan("./영화대본모음/modified-부산행.txt")
     print(data)
-    
+
 def extract4():
     f = open("./영화대본모음/써니.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
@@ -203,13 +203,11 @@ def extract6():
         with open(filename, 'r', encoding='utf-8') as f:
             
             for line in f.readlines():
-                print(line)
                 if expr in line:
                     name_buf, say_buf = line.split(expr)[0],line.split(expr)[1]
                     name_buf = name_buf.split(". ")[-1]
                     say_buf = say_buf.strip('\n')
                     say_state=True
-                    print(f'nb: {name_buf}  sb: {say_buf}')
                 elif line.strip()!="" and say_state==True:
                     say_buf += line.strip('\n')
                 elif line.strip()=="" and say_state==True:
@@ -258,7 +256,6 @@ def txt2json_SinsegaeAndBudang(filename):
     with open(filename, 'r', encoding='utf-8') as f:
         
         for line in f.readlines():
-            print(line)
             if not name_state and line_count(line, name_expr) >=2:
                 name_buf += get_expr(line, name_expr, name_state)
                 name_state = True
