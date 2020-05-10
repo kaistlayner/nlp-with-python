@@ -105,6 +105,30 @@ def extract2():
     print(data)
     f.close()
 
+
+def extract3():
+    def txt2json_Busan(filename):
+        name_buf = ""
+        say_buf = ""
+        expr = ":::"
+        res_dict={}
+
+        with open(filename, 'r', encoding='utf-8') as f:
+            
+            for line in f.readlines():
+                if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
+                    name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
+                    say_buf = say_buf.strip('\n')
+                    if name_buf in res_dict:
+                        res_dict[name_buf].append(say_buf)
+                    else:
+                        res_dict[name_buf] = [say_buf]
+                    say_buf=""
+                    name_buf=""
+        return res_dict
+    data=txt2json_Busan("./영화대본모음/modified-부산행.txt")
+    print(data)
+    
 def extract4():
     f = open("./영화대본모음/써니.txt", 'rt', encoding='UTF8')
     data = defaultdict(list)
