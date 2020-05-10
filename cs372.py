@@ -1,3 +1,4 @@
+from nltk import *
 import requests
 import urllib
 from bs4 import BeautifulSoup
@@ -6,6 +7,8 @@ import re
 import os
 from konlpy.tag import Okt as Tagger
 from Make_Trainset import *
+
+tagger = Tagger()
 
 def extract01():
     f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
@@ -313,7 +316,6 @@ def extract06():
     keys = list(data.keys())
     for i in range(len(keys)):
         data['신세계 ' + keys[i]] = data.pop(keys[i])
-    print(data.keys())
     return data
 
 def extract07():
@@ -590,17 +592,30 @@ def main():
     # 해야될것 : 5,6,7 이름 넣기
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
 
-    extract07()
-    # database = []
-    # files = []
-    # path = './영화대본모음'
-    # for i in os.listdir(path):
-    #     if i.endswith('.txt'):
-    #         files.append(i)
-    #
-    # for file in files:
-    #     database.append(extract_call(file[-6:-4]))
-    #
+    # extract06()
+    database = defaultdict(list)
+    files = []
+    path = './영화대본모음'
+    for i in os.listdir(path):
+        if i.endswith('.txt'):
+            files.append(i)
+
+    for file in files:
+        database.update(extract_call(file[-6:-4]))
+
+
+    all_lst = []
+    feature_dics = []
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature5(database))
+    for person in database:
+        lst = []
+        for dic in feature_dics:
+            lst.append(dic[person])
+        all_lst.append(lst)
+    print(all_lst)
     # # return database
     # des = extract_des(database)
     # centroids = get_cluster(des, 3, 1e-1)

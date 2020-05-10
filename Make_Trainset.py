@@ -126,7 +126,6 @@ def extract_des(db):
     ['name'](str): Name of actor to sentenses one said in the movie
     :return: Modified Database
     :rtype: numpy.ndarray. shape: [num_features, dim_feature]
-    ['name'](str): Name of actor to sentenses one said in the movie
     """
     print('extract_des')
     # print(db)
