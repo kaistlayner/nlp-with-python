@@ -5,6 +5,7 @@ from collections import defaultdict
 import re
 import os
 from konlpy.tag import Okt as Tagger
+from Make_Trainset import *
 
 def extract01():
     f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
@@ -243,7 +244,10 @@ def extract05():
             useless.append(key)
     for character in useless:
         del data[character]
-    print(data)
+
+    keys = list(data.keys())
+    for i in range(len(keys)):
+        data['더킹 ' + keys[i]] = data.pop(keys[i])
     return data
 
 def line_count(line, expr):
@@ -305,16 +309,27 @@ def extract06():
             useless.append(key)
     for character in useless:
         del data[character]
+
+    keys = list(data.keys())
+    for i in range(len(keys)):
+        data['신세계 ' + keys[i]] = data.pop(keys[i])
+    print(data.keys())
     return data
 
 def extract07():
     data = txt2json_SinsegaeAndBudang("./영화대본모음/부당거래07.txt")
-    useless = []
-    for key in data:
-        if len(data[key]) < 20:
-            useless.append(key)
-    for character in useless:
-        del data[character]
+    # useless = []
+    # for key in data:
+    #     if len(data[key]) < 20:
+    #         useless.append(key)
+    # for character in useless:
+    #     del data[character]
+    print(data.keys())
+    # keys = list(data.keys())
+
+    # for i in range(len(keys)):
+    #     data['부당거래 ' + keys[i]] = data.pop(keys[i])
+    # print(data.keys())
     return data
 
 def extract08():
@@ -574,18 +589,22 @@ def feature5(data):
 def main():
     # 해야될것 : 5,6,7 이름 넣기
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-    database = []
-    files = []
-    path = './영화대본모음'
-    for i in os.listdir(path):
-        if i.endswith('.txt'):
-            files.append(i)
 
-    for file in files:
-        database.append(extract_call(file[-6:-4]))
-    print(database)
-    return database
-    # extract05()
+    extract07()
+    # database = []
+    # files = []
+    # path = './영화대본모음'
+    # for i in os.listdir(path):
+    #     if i.endswith('.txt'):
+    #         files.append(i)
+    #
+    # for file in files:
+    #     database.append(extract_call(file[-6:-4]))
+    #
+    # # return database
+    # des = extract_des(database)
+    # centroids = get_cluster(des, 3, 1e-1)
+    # labels = get_labels(des, centoids)
 
 
 if __name__ == '__main__':
