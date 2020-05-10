@@ -103,9 +103,14 @@ def extract02():
     for character in useless:
         del data[character]
 
-    return data
     f.close()
+    return data
 
+
+def remv_motion(line):
+    if ')' in line:
+        return line[line.index(')')+1:]
+    return line
 
 def extract03():
     def txt2json_Busan(filename):
@@ -119,7 +124,7 @@ def extract03():
             for line in f.readlines():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
-                    say_buf = say_buf.strip('\n')
+                    say_buf = remv_motion(say_buf.strip('\n'))
                     if name_buf in res_dict:
                         res_dict[name_buf].append(say_buf)
                     else:
@@ -129,6 +134,7 @@ def extract03():
         return res_dict
     data=txt2json_Busan("./영화대본모음/부산행03.txt")
     return data
+
 
 def extract04():
     f = open("./영화대본모음/써니04.txt", 'rt', encoding='UTF8')
@@ -207,7 +213,7 @@ def extract05():
                 if expr in line:
                     name_buf, say_buf = line.split(expr)[0],line.split(expr)[1]
                     name_buf = name_buf.split(". ")[-1]
-                    say_buf = say_buf.strip('\n')
+                    say_buf = remv_motion(say_buf.strip('\n'))
                     say_state=True
                 elif line.strip()!="" and say_state==True:
                     say_buf += line.strip('\n')
@@ -221,7 +227,8 @@ def extract05():
                         res_dict[name_buf] = [say_buf]
                     say_buf=""
                     name_buf=""
-        return res_dict
+
+        return(res_dict)
 
     data = txt2json_Theking("./영화대본모음/더킹05.txt")
     return data
@@ -258,13 +265,13 @@ def txt2json_SinsegaeAndBudang(filename):
                 name_buf += get_expr(line, name_expr, name_state)
                 name_state = True
             elif name_state and line_count(line, say_expr) >=2:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 name_state = False
             elif name_state and not say_state and line_count(line, say_expr) ==1:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 say_state = True
             elif name_state and say_state and line_count(line, say_expr) ==1:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 say_state = False
                 name_state = False
             if not (name_state or say_state) and say_buf != "" and name_buf !="":
@@ -274,7 +281,7 @@ def txt2json_SinsegaeAndBudang(filename):
                     res_dict[name_buf] = [say_buf]
                 say_buf=""
                 name_buf=""
-    return res_dict
+    return(res_dict)
 
 
 def extract06():
@@ -335,8 +342,8 @@ def extract08():
     for character in useless:
         del data[character]
 
-    return data
     f.close()
+    return data
 
 def extract09():
     f = open("./영화대본모음/타짜09.txt", 'rt', encoding='UTF8')
@@ -381,8 +388,8 @@ def extract09():
     for character in useless:
         del data[character]
 
-    return data
     f.close()
+    return data
 
 # 등장인물 : ... 이런것들 현재 삽입되어있음
 def extract10():
@@ -474,16 +481,15 @@ def extract_call(index):
 
 def main():
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-    # database = []
-    # files = []
-    # path = './영화대본모음'
-    # for i in os.listdir(path):
-    #     if i.endswith('.txt'):
-    #         files.append(i)
-    #
-    # for file in files:
-    #     extract_call(file[-6:-4])
-    extract03()
+    database = []
+    files = []
+    path = './영화대본모음'
+    for i in os.listdir(path):
+        if i.endswith('.txt'):
+            files.append(i)
+
+    for file in files:
+        extract_call(file[-6:-4])
 
 
 if __name__ == '__main__':
