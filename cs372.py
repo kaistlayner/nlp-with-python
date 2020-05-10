@@ -227,14 +227,11 @@ def extract6():
 
 def line_count(line, expr):
     res = 0
-    print(line,expr)
     while expr in line:
-        print("werwerw")
         res += 1
         line = line.replace(expr,'',1)
         if res > 100:
             return -1
-    print(res)
     return res
 
 def get_expr(line, expr, state):
