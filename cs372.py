@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 import re
 import os
-
+from konlpy.tag import Okt as Tagger
 
 def extract01():
     f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
@@ -110,7 +110,7 @@ def extract02():
 def remv_motion(line):
     if '(' in line and ')' in line:
         return remv_motion(line[:line.index('(')]+line[line.index(')')+1:])
-    
+
     return line
 
 def extract03():
@@ -126,13 +126,19 @@ def extract03():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
                     say_buf = remv_motion(say_buf.strip('\n'))
-                    res_dict[name_buf].append(say_buf)
-                    
+                    res_dict['부산행 ' + name_buf].append(say_buf)
+
                     say_buf=""
                     name_buf=""
         return res_dict
     data=txt2json_Busan("./영화대본모음/부산행03.txt")
-    print(data)
+
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
     return data
 
 
@@ -231,6 +237,13 @@ def extract05():
         return(res_dict)
 
     data = txt2json_Theking("./영화대본모음/더킹05.txt")
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
+    print(data)
     return data
 
 def line_count(line, expr):
@@ -286,10 +299,22 @@ def txt2json_SinsegaeAndBudang(filename):
 
 def extract06():
     data = txt2json_SinsegaeAndBudang("./영화대본모음/신세계06.txt")
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
     return data
 
 def extract07():
     data = txt2json_SinsegaeAndBudang("./영화대본모음/부당거래07.txt")
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
     return data
 
 def extract08():
@@ -503,7 +528,7 @@ def feature2(data):   # 문장 길이
         dic[person] = l/num
     return dic
 
-def feature3(data):
+def feature3(data):  #어휘 복잡도
     all_words = []
     for person in data:
         for script in data[person]:
@@ -523,24 +548,44 @@ def feature3(data):
 
     return dic
 
-def main():
-    # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-    # database = []
-    # files = []
-    # path = './영화대본모음'
-    # for i in os.listdir(path):
-    #     if i.endswith('.txt'):
-    #         files.append(i)
-    #
-    # for file in files:
-    #     database.append(extract_call(file[-6:-4]))
-    # # extract03()
-    # print(database)
-    practice = '......... 넌 내 식구야. 또 볼건데. 잘 갔다 와.'
-    print(re.sub('+.', '.', practice))
-    # result = practice.replace(r'[+.]', practice)
+def person_feat_score(script_ls, feature):
+    score = 0
+    for line in script_ls:
+        score += feature(line)
+        # print(f'score: {score}')
+    return round(score/len(script_ls),2)
 
-    # print(result)
+
+def dict_feat_score(ddict, feature):
+    res_dict=defaultdict()
+    for p in ddict:
+        res_dict[p] = person_feat_score(ddict[p], feature)
+    return res_dict
+
+def feature5_extractor(sc):
+    # 수식어구를 많이 사용하는가??
+    sc_tagged = tagger.pos(sc)
+    res = filter(lambda a: a[-1] in ['Adjective','Adverb'], sc_tagged)
+    return len(list(res))
+
+def feature5(data):
+    return dict_feat_score(data, feature5_extractor)
+
+def main():
+    # 해야될것 : 5,6,7 이름 넣기
+    # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
+    database = []
+    files = []
+    path = './영화대본모음'
+    for i in os.listdir(path):
+        if i.endswith('.txt'):
+            files.append(i)
+
+    for file in files:
+        database.append(extract_call(file[-6:-4]))
+    print(database)
+    return database
+    # extract05()
 
 
 if __name__ == '__main__':
