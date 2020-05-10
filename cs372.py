@@ -271,7 +271,7 @@ def get_expr(line, expr, state):
         return line[: line.index(expr)+len(expr)]
     else:
         return ""
-        
+
 def txt2json_SinsegaeAndBudang(filename):
     name_buf = ""
     say_buf = ""
@@ -281,7 +281,7 @@ def txt2json_SinsegaeAndBudang(filename):
     say_expr = "&&&"
     res_dict=defaultdict(list)
     with open(filename, 'r', encoding='utf-8') as f:
-        
+
         for line in f.readlines():
             if not name_state and line_count(line, name_expr) >=2:
                 name_buf += get_expr(line, name_expr, name_state)
@@ -321,18 +321,17 @@ def extract06():
 
 def extract07():
     data = txt2json_SinsegaeAndBudang("./영화대본모음/부당거래07.txt")
-    # useless = []
-    # for key in data:
-    #     if len(data[key]) < 20:
-    #         useless.append(key)
-    # for character in useless:
-    #     del data[character]
-    print(data.keys())
-    # keys = list(data.keys())
+    useless = []
+    for key in data:
+        if len(data[key]) < 20:
+            useless.append(key)
+    for character in useless:
+        del data[character]
 
-    # for i in range(len(keys)):
-    #     data['부당거래 ' + keys[i]] = data.pop(keys[i])
-    # print(data.keys())
+    keys = list(data.keys())
+    for i in range(len(keys)):
+        data['부당거래 ' + keys[i]] = data.pop(keys[i])
+    print(data.keys())
     return data
 
 def extract08():
@@ -590,10 +589,8 @@ def feature5(data):
     return dict_feat_score(data, feature5_extractor)
 
 def main():
-    # 해야될것 : 5,6,7 이름 넣기
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
 
-    # extract06()
     database = defaultdict(list)
     files = []
     path = './영화대본모음'
