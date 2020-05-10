@@ -205,7 +205,7 @@ def extract05():
         say_state = False
         expr = ":::"
 
-        res_dict={}
+        res_dict=defaultdict(list)
         with open(filename, 'r', encoding='utf-8') as f:
 
             for line in f.readlines():
@@ -256,7 +256,7 @@ def txt2json_SinsegaeAndBudang(filename):
     say_state = False
     name_expr = ":::"
     say_expr = "&&&"
-    res_dict={}
+    res_dict=defaultdict(list)
     with open(filename, 'r', encoding='utf-8') as f:
 
         for line in f.readlines():
