@@ -105,6 +105,10 @@ def extract2():
     print(data)
     f.close()
 
+def remv_motion(line):
+    if ')' in line:
+        return line[line.index(')')+1:]
+    return line
 
 def extract3():
     def txt2json_Busan(filename):
@@ -118,14 +122,15 @@ def extract3():
             for line in f.readlines():
                 if expr in line and not line.split(expr)[0].strip().replace(".","").isnumeric():
                     name_buf, say_buf = line.split(expr)[0],''.join(line.split(expr)[1:])
-                    say_buf = say_buf.strip('\n')
+                    say_buf = remv_motion(say_buf.strip('\n'))
                     if name_buf in res_dict:
                         res_dict[name_buf].append(say_buf)
                     else:
                         res_dict[name_buf] = [say_buf]
                     say_buf=""
                     name_buf=""
-        return res_dict
+
+        return(res_dict)
     data=txt2json_Busan("./영화대본모음/modified-부산행.txt")
     print(data)
 
@@ -206,7 +211,7 @@ def extract6():
                 if expr in line:
                     name_buf, say_buf = line.split(expr)[0],line.split(expr)[1]
                     name_buf = name_buf.split(". ")[-1]
-                    say_buf = say_buf.strip('\n')
+                    say_buf = remv_motion(say_buf.strip('\n'))
                     say_state=True
                 elif line.strip()!="" and say_state==True:
                     say_buf += line.strip('\n')
@@ -220,7 +225,9 @@ def extract6():
                         res_dict[name_buf] = [say_buf]
                     say_buf=""
                     name_buf=""
-        return res_dict
+
+        return(res_dict)
+
 
     data = txt2json_Theking("./영화대본모음/modified-더킹.txt")
     print(data)
@@ -257,13 +264,13 @@ def txt2json_SinsegaeAndBudang(filename):
                 name_buf += get_expr(line, name_expr, name_state)
                 name_state = True
             elif name_state and line_count(line, say_expr) >=2:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 name_state = False
             elif name_state and not say_state and line_count(line, say_expr) ==1:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 say_state = True
             elif name_state and say_state and line_count(line, say_expr) ==1:
-                say_buf += get_expr(line, say_expr, say_state)
+                say_buf += remv_motion(get_expr(line, say_expr, say_state))
                 say_state = False
                 name_state = False
             if not (name_state or say_state) and say_buf != "" and name_buf !="":
@@ -273,7 +280,7 @@ def txt2json_SinsegaeAndBudang(filename):
                     res_dict[name_buf] = [say_buf]
                 say_buf=""
                 name_buf=""
-    return res_dict
+    return(res_dict)
 
 
 def extract7():
