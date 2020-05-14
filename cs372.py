@@ -561,7 +561,7 @@ def feature3(data):  #어휘 복잡도
             for word in script.split(' '):
                 count = count + 1
                 s = s + Frq[word]
-        dic[person] = s
+        dic[person] = s/count
 
     return dic
 
@@ -617,11 +617,17 @@ def main():
     # return database
     # des = extract_des(database)
     des = np.array(all_lst)
-    centroids = get_cluster(des, 3, 1e-1)
-    labels = get_labels(des, centroids)
+    centroids = get_cluster(des, 8, 1)
+    labels = get_labels(normalizer(des), centroids)
 
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
+    
+    for i, key in enumerate(database.keys()):
+        print("name:", key)
+        print("label:", labels[i])
+    
+    
 
 
 
