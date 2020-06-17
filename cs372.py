@@ -522,19 +522,22 @@ def extract_call(index):
     return func()
 
 
-
 #######################################
-def feature1(data):   # 말 끝을 흐리는지
+def feature1(data):
+    # 말 끝을 흐리는지
     dic = defaultdict(int)
     for person in data:
         num = 0
         for script in data[person]:
             if script[-1] == '.' and script[-2] == '.':
                 num = num + 1
-        dic[person] = num
+        dic[person] = num / len(data[person])
     return dic
 
-def feature2(data):   # 문장 길이
+def feature2(data):
+    # 성재
+    # 문장 길이 & 단어개수
+
     dic = defaultdict(None)
     for person in data:
         l = 0
@@ -546,6 +549,10 @@ def feature2(data):   # 문장 길이
     return dic
 
 def feature3(data):  #어휘 복잡도
+    # 민준
+    # 평균단어길이를 weight 줘서 동시에 고려
+    # len(set(a)) / len(list(a))
+
     all_words = []
     for person in data:
         for script in data[person]:
@@ -565,6 +572,13 @@ def feature3(data):  #어휘 복잡도
 
     return dic
 
+# 의문문?, 감탄문!개수
+# 감탄 : 와, 와아, 우와
+# 의문문 : 왜
+# 효진
+#def feature4(data):
+
+
 def person_feat_score(script_ls, feature):
     score = 0
     for line in script_ls:
@@ -581,6 +595,8 @@ def dict_feat_score(ddict, feature):
 
 def feature5_extractor(sc):
     # 수식어구를 많이 사용하는가??
+    # 재진
+    # 나누기 문장 단어수
     sc_tagged = tagger.pos(sc)
     res = filter(lambda a: a[-1] in ['Adjective','Adverb'], sc_tagged)
     return len(list(res))
@@ -588,9 +604,17 @@ def feature5_extractor(sc):
 def feature5(data):
     return dict_feat_score(data, feature5_extractor)
 
+# 복잡한 문장 사용(chunker) tree height
+#def feature6(data):
+
+# def evaluate(data):
+# DB 인물의 문장 n개를 뽑아와서 feature extraction -> cluster를 거쳤을 때 제대로 된 cluster에 들어가는지 확인
+
+# def test(data):
+
+
 def main():
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-
     database = defaultdict(list)
     files = []
     path = './영화대본모음'
@@ -614,10 +638,10 @@ def main():
             lst.append(dic[person])
         all_lst.append(lst)
     print(all_lst)
-    # # return database
-    # des = extract_des(database)
-    # centroids = get_cluster(des, 3, 1e-1)
-    # labels = get_labels(des, centoids)
+    # return database
+    des = extract_des(database)
+    centroids = get_cluster(des, 3, 1e-1)
+    labels = get_labels(des, centoids)
 
 
 if __name__ == '__main__':
