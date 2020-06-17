@@ -129,6 +129,7 @@ def extract_des(db):
     """
     print('extract_des')
     # print(db)
+    # return np.array(db)
 
     return None
 
