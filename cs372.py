@@ -7,6 +7,7 @@ import re
 import os
 from konlpy.tag import Okt as Tagger
 from Make_Trainset import *
+import random
 
 #tagger = Tagger()
 
@@ -584,7 +585,6 @@ def feature4(data):
         num = 0
         for script in data[person]:
             if '?' in script or '!' in script:
-                print(script)
                 num = num + 1
         dic[person] = num / len(data[person])
     return dic
@@ -617,8 +617,42 @@ def feature5(data):
 # 복잡한 문장 사용(chunker) tree height
 #def feature6(data):
 
-def evaluate(data):
+def evaluate(data, centroids, labels):
 # DB 인물의 문장 n개를 뽑아와서 feature extraction -> cluster를 거쳤을 때 제대로 된 cluster에 들어가는지 확인
+    characters = list(data.keys())
+    testIndex = random.randrange(len(characters))
+    character = characters[testIndex]
+    allSent = data[character]
+    # randomSent 에는 random character의 20개의 문장이 들어간다.
+    randomSent = random.sample(allSent, 20)
+
+    database = defaultdict(list)
+    for sent in randomSent:
+        database[character].append(sent)
+
+    all_lst = []
+    feature_dics = []
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
+    # feature_dics.append(feature5(database))
+
+    lst = []
+    for dic in feature_dics:
+        lst.append(dic[character])
+    all_lst.append(lst)
+    des = np.array(all_lst)
+    # 현재 des [[ 0.15       19.4         0.10798122  0.35      ]] 이런식으로 들어가있음
+
+    label = get_labels(des, centroids)
+    # print("In evaluating process")
+    if (label[0] == labels[testIndex]):
+        # print("Correctly Clusterd")
+        return 1
+    else:
+        # print("UnCorrectly Clustered")
+        return 0
 
 
 # def test(data):
@@ -636,33 +670,32 @@ def main():
     for file in files:
         database.update(extract_call(file[-6:-4]))
 
-    # print(database)
-
-
     all_lst = []
     feature_dics = []
-    # feature_dics.append(feature1(database))
-    # feature_dics.append(feature2(database))
-    # feature_dics.append(feature3(database))
-    # feature_dics.append(feature4(database))
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
     # feature_dics.append(feature5(database))
-    print(feature_dics)
-    # for person in database:
-    #     lst = []
-    #     for dic in feature_dics:
-    #         lst.append(dic[person])
-    #     all_lst.append(lst)
-    # print(all_lst)
-    # # return database
-    # # des = extract_des(database)
-    # des = np.array(all_lst)
-    # centroids = get_cluster(des, 3, 1e-1)
-    # labels = get_labels(des, centroids)
+    for person in database:
+        lst = []
+        for dic in feature_dics:
+            lst.append(dic[person])
+        all_lst.append(lst)
 
-    #print(f'centroids: {centroids}')
-    #print(f'labels: {labels}')
+    des = np.array(all_lst)
+    centroids = get_cluster(des, 3, 1e-1)
+    labels = get_labels(des, centroids)
 
+    print(f'centroids: {centroids}')
+    print(f'labels: {labels}')
 
+    score = 0
+    for i in range(100):
+        score += evaluate(database, centroids, labels)
+
+    #나중에 만약 더 정교한 f_score가 필요한 경우 sklearn.metrics import confusion_matrix 이용
+    print("정확도 : {0}%".format(score))
 
 if __name__ == '__main__':
     main()
