@@ -8,7 +8,7 @@ import os
 from konlpy.tag import Okt as Tagger
 from Make_Trainset import *
 
-tagger = Tagger()
+#tagger = Tagger()
 
 def extract01():
     f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
@@ -331,7 +331,6 @@ def extract07():
     keys = list(data.keys())
     for i in range(len(keys)):
         data['부당거래 ' + keys[i]] = data.pop(keys[i])
-    print(data.keys())
     return data
 
 def extract08():
@@ -562,22 +561,33 @@ def feature3(data):  #어휘 복잡도
 
     dic = defaultdict(int)
     for person in data:
-        count = 0
+        #word_len_sum = 0
+        w = 0
         s = 0
         for script in data[person]:
             for word in script.split(' '):
-                count = count + 1
+                #word_len_sum = word_len_sum + len(word)
+                w = w + 1
                 s = s + Frq[word]
-        dic[person] = s
-
+            #word_len_avg_reverse = w / word_len_sum
+        ans = w / s
+        #ans = ans + word_len_avg_reverse
+        dic[person] = ans
     return dic
 
-# 의문문?, 감탄문!개수
-# 감탄 : 와, 와아, 우와
-# 의문문 : 왜
-# 효진
-#def feature4(data):
 
+# 의문문?, 감탄문!개수
+# 효진
+def feature4(data):
+    dic = defaultdict(int)
+    for person in data:
+        num = 0
+        for script in data[person]:
+            if '?' in script or '!' in script:
+                print(script)
+                num = num + 1
+        dic[person] = num / len(data[person])
+    return dic
 
 def person_feat_score(script_ls, feature):
     score = 0
@@ -607,8 +617,9 @@ def feature5(data):
 # 복잡한 문장 사용(chunker) tree height
 #def feature6(data):
 
-# def evaluate(data):
+def evaluate(data):
 # DB 인물의 문장 n개를 뽑아와서 feature extraction -> cluster를 거쳤을 때 제대로 된 cluster에 들어가는지 확인
+
 
 # def test(data):
 
@@ -625,24 +636,28 @@ def main():
     for file in files:
         database.update(extract_call(file[-6:-4]))
 
+    # print(database)
+
 
     all_lst = []
     feature_dics = []
-    feature_dics.append(feature1(database))
-    feature_dics.append(feature2(database))
-    feature_dics.append(feature3(database))
-    feature_dics.append(feature5(database))
-    for person in database:
-        lst = []
-        for dic in feature_dics:
-            lst.append(dic[person])
-        all_lst.append(lst)
-    print(all_lst)
-    # return database
-    # des = extract_des(database)
-    des = np.array(all_lst)
-    centroids = get_cluster(des, 3, 1e-1)
-    labels = get_labels(des, centroids)
+    # feature_dics.append(feature1(database))
+    # feature_dics.append(feature2(database))
+    # feature_dics.append(feature3(database))
+    # feature_dics.append(feature4(database))
+    # feature_dics.append(feature5(database))
+    print(feature_dics)
+    # for person in database:
+    #     lst = []
+    #     for dic in feature_dics:
+    #         lst.append(dic[person])
+    #     all_lst.append(lst)
+    # print(all_lst)
+    # # return database
+    # # des = extract_des(database)
+    # des = np.array(all_lst)
+    # centroids = get_cluster(des, 3, 1e-1)
+    # labels = get_labels(des, centroids)
 
     #print(f'centroids: {centroids}')
     #print(f'labels: {labels}')
