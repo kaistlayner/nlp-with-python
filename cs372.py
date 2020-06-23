@@ -548,16 +548,16 @@ def feature2(data):
 def feature3(data):  #어휘 복잡도
     dic = defaultdict(int)
     for person in data:
-        
+
         ratio = 0
         for script in data[person]:
             words = script.split(' ')
             words_unique = set(words)
             ratio = ratio + (len(words_unique)/len(words))
-            
+
         ratio = ratio / len(data[person])
         dic[person] = ratio
-        
+
     return dic
 
 
@@ -643,7 +643,7 @@ def evaluate(data, centroids, labels, ref=None):
         return 0
 
 
-def test(centroids, ref=None):
+def test(centroids, clusters, ref=None):
     f = open("./testset.txt", 'rt', encoding='UTF8')
     database = defaultdict(list)
     while True:
@@ -676,11 +676,11 @@ def test(centroids, ref=None):
         des = normalizer(np.array(all_lst + ref))[:len(all_lst)]
     else:
         des = normalizer(np.array(all_lst))
-        
+
     label = get_labels(des, centroids)
     # print(label)
     for i in range(len(characters)):
-        print("Test 데이타 {0}는 {1}번재 클러스터로 분류됨".format(characters[i], label[i]))
+        print("Test 데이타 {0}는 {1}번재 클러스터로 분류됨. 같은 클러스터 다른 대표인물들은 {2}".format(characters[i], label[i], clusters[label[i]][:2]))
 
     f.close()
 
@@ -688,6 +688,7 @@ def test(centroids, ref=None):
 def main():
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
     database = defaultdict(list)
+
     files = []
     path = './영화대본모음'
     for i in os.listdir(path):
@@ -714,14 +715,20 @@ def main():
     centroids = get_cluster(des, 5, 1e-1)
     labels = get_labels(des, centroids)
 
+    # 같은 클러스터에 있는 인물들을 위한 추가 처리
+    clusters = defaultdict(list)
+    characterList = list(database.keys())
+    for i in range(len(labels)):
+        clusters[labels[i]].append(characterList[i])
+
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
-    
+
     # for i, key in enumerate(database.keys()):
     #     print("name:", key)
     #     print("label:", labels[i])
-    
-    
+
+
 
     # evaluate(database, centroids, labels, ref=all_lst)
     score = 0
@@ -731,6 +738,6 @@ def main():
     #나중에 만약 더 정교한 f_score가 필요한 경우 sklearn.metrics import confusion_matrix 이용
     print("Evaluation 정확도 : {0}%".format(score))
 
-    test(centroids, ref=all_lst)
+    test(centroids, clusters, ref=all_lst)
 if __name__ == '__main__':
     main()
