@@ -608,8 +608,8 @@ def feature5_extractor(sc):
     # 재진
     # 나누기 문장 단어수
     sc_tagged = tagger.pos(sc)
-    res = filter(lambda a: a[-1] in ['Adjective','Adverb'], sc_tagged)/len(sc.split())
-    return len(list(res))
+    res = filter(lambda a: a[-1] in ['Adjective','Adverb'], sc_tagged)
+    return len(list(res))/len(sc.split())
 
 def feature5(data):
     return dict_feat_score(data, feature5_extractor)
