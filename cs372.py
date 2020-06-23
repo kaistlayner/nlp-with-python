@@ -648,8 +648,10 @@ def evaluate(data, centroids, labels, ref=None):
         des = normalizer(np.array(all_lst))
     # 현재 des [[ 0.15       19.4         0.10798122  0.35      ]] 이런식으로 들어가있음
 
+    print(all_lst + ref)
+    exit()
     label = get_labels(des, centroids)
-    
+
     # print("In evaluating process")
     if (label[0] == labels[testIndex]):
         # print("Correctly Clusterd")
