@@ -78,7 +78,7 @@ def get_cluster(des, k, thres):
 
         if (np.linalg.norm(centroids - prev_centroids) < thres):
             break
-
+ 
     return centroids
 
 def get_labels(des, cent):
@@ -94,11 +94,11 @@ def get_labels(des, cent):
     """
 
     labels = []
-
     for feat in des:
         labels.append(np.argmin(np.linalg.norm(cent - feat, axis = 1)))
 
     labels = np.array(labels)
+
 
     return labels
 
