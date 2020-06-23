@@ -57,7 +57,7 @@ def get_cluster(des, k, thres):
 #     centroids = np.array([des[i] for i in range(k)])
 
     while(1):
-        print("updated centroids: \n", centroids)
+        # print("updated centroids: \n", centroids)
         
         prev_centroids = centroids
         centroids = np.zeros((k, f))

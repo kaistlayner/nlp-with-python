@@ -632,8 +632,6 @@ def evaluate(data, centroids, labels, ref=None):
         des = normalizer(np.array(all_lst))
     # 현재 des [[ 0.15       19.4         0.10798122  0.35      ]] 이런식으로 들어가있음
 
-    print(all_lst + ref)
-    exit()
     label = get_labels(des, centroids)
 
     # print("In evaluating process")
@@ -645,7 +643,7 @@ def evaluate(data, centroids, labels, ref=None):
         return 0
 
 
-def test(centroids):
+def test(centroids, ref=None):
     f = open("./testset.txt", 'rt', encoding='UTF8')
     database = defaultdict(list)
     while True:
@@ -674,10 +672,13 @@ def test(centroids):
             lst.append(dic[character])
         all_lst.append(lst)
 
-    des = np.array(all_lst)
-
+    if ref:
+        des = normalizer(np.array(all_lst + ref))[:len(all_lst)]
+    else:
+        des = normalizer(np.array(all_lst))
+        
     label = get_labels(des, centroids)
-    print(label)
+    # print(label)
     for i in range(len(characters)):
         print("Test 데이타 {0}는 {1}번재 클러스터로 분류됨".format(characters[i], label[i]))
 
@@ -716,9 +717,9 @@ def main():
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
     
-    for i, key in enumerate(database.keys()):
-        print("name:", key)
-        print("label:", labels[i])
+    # for i, key in enumerate(database.keys()):
+    #     print("name:", key)
+    #     print("label:", labels[i])
     
     
 
@@ -730,6 +731,6 @@ def main():
     #나중에 만약 더 정교한 f_score가 필요한 경우 sklearn.metrics import confusion_matrix 이용
     print("Evaluation 정확도 : {0}%".format(score))
 
-    # test(centroids)
+    test(centroids, ref=all_lst)
 if __name__ == '__main__':
     main()
