@@ -7,6 +7,7 @@ import re
 import os
 from konlpy.tag import Okt as Tagger
 from Make_Trainset import *
+import random
 
 tagger = Tagger()
 
@@ -331,7 +332,6 @@ def extract07():
     keys = list(data.keys())
     for i in range(len(keys)):
         data['부당거래 ' + keys[i]] = data.pop(keys[i])
-    print(data.keys())
     return data
 
 def extract08():
@@ -522,19 +522,22 @@ def extract_call(index):
     return func()
 
 
-
 #######################################
-def feature1(data):   # 말 끝을 흐리는지
+def feature1(data):
+    # 말 끝을 흐리는지
     dic = defaultdict(int)
     for person in data:
         num = 0
         for script in data[person]:
             if script[-1] == '.' and script[-2] == '.':
                 num = num + 1
-        dic[person] = num
+        dic[person] = num / len(data[person])
     return dic
 
-def feature2(data):   # 문장 길이
+def feature2(data):
+    # 성재
+    # 문장 길이 & 단어개수
+
     dic = defaultdict(None)
     for person in data:
         l = 0
@@ -546,6 +549,10 @@ def feature2(data):   # 문장 길이
     return dic
 
 def feature3(data):  #어휘 복잡도
+    # 민준
+    # 평균단어길이를 weight 줘서 동시에 고려
+    # len(set(a)) / len(list(a))
+
     all_words = []
     for person in data:
         for script in data[person]:
@@ -555,14 +562,31 @@ def feature3(data):  #어휘 복잡도
 
     dic = defaultdict(int)
     for person in data:
-        count = 0
+        #word_len_sum = 0
+        w = 0
         s = 0
         for script in data[person]:
             for word in script.split(' '):
-                count = count + 1
+                #word_len_sum = word_len_sum + len(word)
+                w = w + 1
                 s = s + Frq[word]
-        dic[person] = s/count
+            #word_len_avg_reverse = w / word_len_sum
+        ans = w / s
+        #ans = ans + word_len_avg_reverse
+        dic[person] = ans
+    return dic
 
+
+# 의문문?, 감탄문!개수
+# 효진
+def feature4(data):
+    dic = defaultdict(int)
+    for person in data:
+        num = 0
+        for script in data[person]:
+            if '?' in script or '!' in script:
+                num = num + 1
+        dic[person] = num / len(data[person])
     return dic
 
 def person_feat_score(script_ls, feature):
@@ -581,16 +605,100 @@ def dict_feat_score(ddict, feature):
 
 def feature5_extractor(sc):
     # 수식어구를 많이 사용하는가??
+    # 재진
+    # 나누기 문장 단어수
     sc_tagged = tagger.pos(sc)
     res = filter(lambda a: a[-1] in ['Adjective','Adverb'], sc_tagged)
-    return len(list(res))
+    return len(list(res))/len(sc.split())
 
 def feature5(data):
     return dict_feat_score(data, feature5_extractor)
 
+# 복잡한 문장 사용(chunker) tree height
+#def feature6(data):
+
+def evaluate(data, centroids, labels, ref=None):
+# DB 인물의 문장 n개를 뽑아와서 feature extraction -> cluster를 거쳤을 때 제대로 된 cluster에 들어가는지 확인
+    characters = list(data.keys())
+    testIndex = random.randrange(len(characters))
+    character = characters[testIndex]
+    allSent = data[character]
+    # randomSent 에는 random character의 20개의 문장이 들어간다.
+    randomSent = random.sample(allSent, len(allSent))
+
+    database = defaultdict(list)
+    for sent in randomSent:
+        database[character].append(sent)
+
+    all_lst = []
+    feature_dics = []
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
+    feature_dics.append(feature5(database))
+    lst = []
+    for dic in feature_dics:
+        lst.append(dic[character])
+    all_lst.append(lst)
+
+    if ref:
+        des = normalizer(np.array(all_lst + ref))[:len(all_lst)]
+    else:
+        des = normalizer(np.array(all_lst))
+    # 현재 des [[ 0.15       19.4         0.10798122  0.35      ]] 이런식으로 들어가있음
+
+    label = get_labels(des, centroids)
+    # print("In evaluating process")
+    if (label[0] == labels[testIndex]):
+        # print("Correctly Clusterd")
+        return 1
+    else:
+        # print("UnCorrectly Clustered")
+        return 0
+
+
+def test(centroids):
+    f = open("./testset.txt", 'rt', encoding='UTF8')
+    database = defaultdict(list)
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if line in ['\n', '\r\n']:
+            continue
+        elif line.startswith('등장인물'):
+            key = line.split(':')[1].strip()
+        else:
+            database[key].append(line.rstrip())
+
+    all_lst = []
+    feature_dics = []
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
+    feature_dics.append(feature5(database))
+
+    characters = list(database.keys())
+    for character in characters:
+        lst = []
+        for dic in feature_dics:
+            lst.append(dic[character])
+        all_lst.append(lst)
+
+    des = np.array(all_lst)
+
+    label = get_labels(des, centroids)
+    print(label)
+    for i in range(len(characters)):
+        print("Test 데이타 {0}는 {1}번재 클러스터로 분류됨".format(characters[i], label[i]))
+
+    f.close()
+
+
 def main():
     # 영화대본모음 폴더의 모든 txt에 대해서 txt파일명 마지막 번호 읽어와서 그에 맞는 대본 processing후 db에 삽입
-
     database = defaultdict(list)
     files = []
     path = './영화대본모음'
@@ -601,24 +709,22 @@ def main():
     for file in files:
         database.update(extract_call(file[-6:-4]))
 
-
     all_lst = []
     feature_dics = []
     feature_dics.append(feature1(database))
     feature_dics.append(feature2(database))
     feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
     feature_dics.append(feature5(database))
     for person in database:
         lst = []
         for dic in feature_dics:
             lst.append(dic[person])
         all_lst.append(lst)
-    print(all_lst)
-    # return database
-    # des = extract_des(database)
-    des = np.array(all_lst)
-    centroids = get_cluster(des, 8, 1)
-    labels = get_labels(normalizer(des), centroids)
+
+    des = normalizer(np.array(all_lst))
+    centroids = get_cluster(des, 8, 1e-1)
+    labels = get_labels(des, centroids)
 
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
@@ -629,7 +735,14 @@ def main():
     
     
 
+    # evaluate(database, centroids, labels, ref=all_lst)
+    score = 0
+    for i in range(100):
+        score += evaluate(database, centroids, labels, ref=all_lst)
 
+    #나중에 만약 더 정교한 f_score가 필요한 경우 sklearn.metrics import confusion_matrix 이용
+    print("Evaluation 정확도 : {0}%".format(score))
 
+    # test(centroids)
 if __name__ == '__main__':
     main()
