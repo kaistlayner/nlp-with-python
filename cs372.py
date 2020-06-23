@@ -531,7 +531,7 @@ def feature1(data):
         for script in data[person]:
             if script[-1] == '.' and script[-2] == '.':
                 num = num + 1
-        dic[person] = num / len(data[person])
+        dic[person] = num
     return dic
 
 def feature2(data):
@@ -586,7 +586,7 @@ def feature4(data):
         for script in data[person]:
             if '?' in script or '!' in script:
                 num = num + 1
-        dic[person] = num / len(data[person])
+        dic[person] = num
     return dic
 
 def person_feat_score(script_ls, feature):
@@ -649,6 +649,7 @@ def evaluate(data, centroids, labels, ref=None):
     # 현재 des [[ 0.15       19.4         0.10798122  0.35      ]] 이런식으로 들어가있음
 
     label = get_labels(des, centroids)
+    
     # print("In evaluating process")
     if (label[0] == labels[testIndex]):
         # print("Correctly Clusterd")
@@ -723,7 +724,7 @@ def main():
         all_lst.append(lst)
 
     des = normalizer(np.array(all_lst))
-    centroids = get_cluster(des, 8, 1e-1)
+    centroids = get_cluster(des, 5, 1e-1)
     labels = get_labels(des, centroids)
 
     print(f'centroids: {centroids}')
