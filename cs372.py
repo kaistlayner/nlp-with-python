@@ -9,7 +9,7 @@ from konlpy.tag import Okt as Tagger
 from Make_Trainset import *
 import random
 
-#tagger = Tagger()
+tagger = Tagger()
 
 def extract01():
     f = open("./영화대본모음/건축학개론01.txt", 'rt', encoding='UTF8')
@@ -674,7 +674,7 @@ def test(centroids):
     feature_dics.append(feature2(database))
     feature_dics.append(feature3(database))
     feature_dics.append(feature4(database))
-    # feature_dics.append(feature5(database))
+    feature_dics.append(feature5(database))
 
     characters = list(database.keys())
     for character in characters:
@@ -711,7 +711,7 @@ def main():
     feature_dics.append(feature2(database))
     feature_dics.append(feature3(database))
     feature_dics.append(feature4(database))
-    # feature_dics.append(feature5(database))
+    feature_dics.append(feature5(database))
     for person in database:
         lst = []
         for dic in feature_dics:
