@@ -637,7 +637,6 @@ def evaluate(data, centroids, labels):
     feature_dics.append(feature3(database))
     feature_dics.append(feature4(database))
     # feature_dics.append(feature5(database))
-
     lst = []
     for dic in feature_dics:
         lst.append(dic[character])
@@ -655,7 +654,43 @@ def evaluate(data, centroids, labels):
         return 0
 
 
-# def test(data):
+def test(centroids):
+    f = open("./testset.txt", 'rt', encoding='UTF8')
+    database = defaultdict(list)
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if line in ['\n', '\r\n']:
+            continue
+        elif line.startswith('등장인물'):
+            key = line.split(':')[1].strip()
+        else:
+            database[key].append(line.rstrip())
+
+    all_lst = []
+    feature_dics = []
+    feature_dics.append(feature1(database))
+    feature_dics.append(feature2(database))
+    feature_dics.append(feature3(database))
+    feature_dics.append(feature4(database))
+    # feature_dics.append(feature5(database))
+
+    characters = list(database.keys())
+    for character in characters:
+        lst = []
+        for dic in feature_dics:
+            lst.append(dic[character])
+        all_lst.append(lst)
+
+    des = np.array(all_lst)
+
+    label = get_labels(des, centroids)
+    print(label)
+    for i in range(len(characters)):
+        print("Test 데이타 {0}는 {1}번재 클러스터로 분류됨".format(characters[i], label[i]))
+
+    f.close()
 
 
 def main():
@@ -690,12 +725,14 @@ def main():
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
 
+    evaluate(database, centroids, labels)
     score = 0
     for i in range(100):
         score += evaluate(database, centroids, labels)
 
     #나중에 만약 더 정교한 f_score가 필요한 경우 sklearn.metrics import confusion_matrix 이용
-    print("정확도 : {0}%".format(score))
+    print("Evaluation 정확도 : {0}%".format(score))
 
+    test(centroids)
 if __name__ == '__main__':
     main()
