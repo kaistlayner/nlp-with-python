@@ -535,9 +535,6 @@ def feature1(data):
     return dic
 
 def feature2(data):
-    # 성재
-    # 문장 길이 & 단어개수
-
     dic = defaultdict(None)
     for person in data:
         l = 0
@@ -549,31 +546,18 @@ def feature2(data):
     return dic
 
 def feature3(data):  #어휘 복잡도
-    # 민준
-    # 평균단어길이를 weight 줘서 동시에 고려
-    # len(set(a)) / len(list(a))
-
-    all_words = []
-    for person in data:
-        for script in data[person]:
-            for word in script.split(' '):
-                all_words.append(word)
-    Frq = FreqDist(all_words)
-
     dic = defaultdict(int)
     for person in data:
-        #word_len_sum = 0
-        w = 0
-        s = 0
+        
+        ratio = 0
         for script in data[person]:
-            for word in script.split(' '):
-                #word_len_sum = word_len_sum + len(word)
-                w = w + 1
-                s = s + Frq[word]
-            #word_len_avg_reverse = w / word_len_sum
-        ans = w / s
-        #ans = ans + word_len_avg_reverse
-        dic[person] = ans
+            words = script.split(' ')
+            words_unique = set(words)
+            ratio = ratio + (len(words_unique)/len(words))
+            
+        ratio = ratio / len(data[person])
+        dic[person] = ratio
+        
     return dic
 
 
@@ -624,7 +608,7 @@ def evaluate(data, centroids, labels, ref=None):
     character = characters[testIndex]
     allSent = data[character]
     # randomSent 에는 random character의 20개의 문장이 들어간다.
-    randomSent = random.sample(allSent, len(allSent))
+    randomSent = random.sample(allSent, 20)
 
     database = defaultdict(list)
     for sent in randomSent:
@@ -731,6 +715,12 @@ def main():
 
     print(f'centroids: {centroids}')
     print(f'labels: {labels}')
+    
+    for i, key in enumerate(database.keys()):
+        print("name:", key)
+        print("label:", labels[i])
+    
+    
 
     # evaluate(database, centroids, labels, ref=all_lst)
     score = 0
